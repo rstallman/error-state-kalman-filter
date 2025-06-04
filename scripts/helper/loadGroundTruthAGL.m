@@ -2,7 +2,7 @@ function [imgid, kappa_gt, omega_gt, phi_gt, x_gps, x_gt, y_gps, y_gt, z_gps, z_
 % Adapted from Zurich loadGroundTruthAGL script, but in a function form
 
     %% Initialize variables.
-    filename = '../data/Log Files/GroundTruthAGL.csv';
+    filename = '../inekf/dataset/AGZ_subset/Log Files/GroundTruthAGL.csv';
     delimiter = ',';
     startRow = 2;
 
@@ -40,14 +40,15 @@ function [imgid, kappa_gt, omega_gt, phi_gt, x_gps, x_gt, y_gps, y_gt, z_gps, z_
     % script.
 
     %% Allocate imported array to column variable names
-    imgid = dataArray{:, 1};
-    x_gt = dataArray{:, 2};
-    y_gt = dataArray{:, 3};
-    z_gt = dataArray{:, 4};
-    omega_gt = dataArray{:, 5};
-    phi_gt = dataArray{:, 6};
-    kappa_gt = dataArray{:, 7};
-    x_gps = dataArray{:, 8};
-    y_gps = dataArray{:, 9};
-    z_gps = dataArray{:, 10};
+    imgid = dataArray{:, 1}(1:end-1); 
+    % Remove last element which is empty
+    x_gt = dataArray{:, 2}(1:end-1);
+    y_gt = dataArray{:, 3}(1:end-1);
+    z_gt = dataArray{:, 4}(1:end-1);
+    omega_gt = dataArray{:, 5}(1:end-1);
+    phi_gt = dataArray{:, 6}(1:end-1);
+    kappa_gt = dataArray{:, 7}(1:end-1);
+    x_gps = dataArray{:, 8}(1:end-1);
+    y_gps = dataArray{:, 9}(1:end-1);
+    z_gps = dataArray{:, 10}(1:end-1);
 end

@@ -1,10 +1,8 @@
 #include <IEKF.hpp>
-#include <utils.hpp>
-
-#include <eigen3/unsupported/Eigen/MatrixFunctions>
-
 #include <cmath>
 #include <iostream>
+#include <unsupported/Eigen/MatrixFunctions>
+#include <utils.hpp>
 
 using namespace std::chrono;
 using namespace Eigen;

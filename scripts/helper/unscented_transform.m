@@ -75,7 +75,18 @@ classdef unscented_transform < handle
                 obj.mean = obj.mean + obj.w(j) * obj.Y(:,j);
             end
             diff = (obj.Y - obj.mean);
-            diff(7:9,:) = wrapToPi(diff(7:9,:));
+
+            if all(real(diff(7:9,:)) == diff(7:9,:))
+                % if the euler angles are real, then we can just use them
+                % as they are.
+                diff(7:9,:) = wrapToPi(diff(7:9,:));
+            else
+                % if the euler angles are complex, then we need to wrap them
+                % to pi.
+                % diff(7:9,:) = atan2(imag(diff(7:9,:)), real(diff(7:9,:)));
+            end
+
+            % diff(7:9,:) = wrapToPi(diff(7:9,:));
             obj.Cov = diff * diag(obj.w) * diff';
             %obj.Cov_xy = (obj.X - obj.x_input) * diag(obj.w) * diff';
         end

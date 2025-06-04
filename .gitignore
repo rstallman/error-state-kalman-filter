@@ -13,3 +13,5 @@ AGZ_subset
 .DS_Store
 *.m~
 data/
+inekf/dataset/
+inekf/build/

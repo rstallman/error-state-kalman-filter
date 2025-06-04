@@ -22,7 +22,7 @@ classdef EKF < handle
                 v0 = zeros(3,1);
                 V_in = eye(3) * 0.01;
             end
-            
+         
             obj.mu = [p0; v0; theta0];
             obj.Sigma = eye(9);
             
@@ -98,12 +98,22 @@ classdef EKF < handle
             
             %Propoagate mean through non-linear dynamics
             obj.mu = obj.eval_mu(obj.mu, w, a, dt);
-            obj.mu(7:9) = wrapToPi(obj.mu(7:9)); % so sad
+            if all(real(obj.mu(7:9)) == obj.mu(7:9))
+                % if the euler angles are real, then we can just use them
+                % as they are.
+                obj.mu(7:9) = wrapToPi(obj.mu(7:9));
+            else
+                % if the euler angles are complex, then we need to wrap them
+                % to pi.
+                % obj.mu(7:9) = atan2(imag(obj.mu(7:9)), real(obj.mu(7:9)));
+            end
+            % obj.mu(7:9) = wrapToPi(obj.mu(7:9)); % so sad
         end
         
         %------------------------------------------------------------------
         
         function correction(obj, gps)
+            
             nu = gps - obj.mu(1:3);
             H = obj.H_mat;
             

@@ -1,6 +1,6 @@
 #include <DataLoader.hpp>
+#include <ESKF.hpp>
 #include <Eigen/Dense>
-#include <IEKF.hpp>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -23,6 +23,12 @@ struct ImuMeas
     bool gyro_set = false;
 };
 
+void savePositionAndAttitude(
+    std::ofstream& file, const Vector3d& pos, const Quaterniond& att)
+{
+    file << pos.transpose() << " " << att.coeffs().transpose() << "\n";
+}
+
 int main()
 {
     auto filepath =
@@ -42,11 +48,15 @@ int main()
     ImuMeas imu;
 
     // Create iekf
-    iekf::IEKF filter;
+    iekf::ESKF filter;
 
     int cnt = 0;
-
-    std::ofstream fused_file("fused.txt", std::ios::trunc);
+    std::ofstream fused_file("fused_eskf_me.txt", std::ios::trunc);
+    if (!fused_file.is_open())
+    {
+        std::cerr << "Error opening output file: fused_eskf_me.txt\n";
+        return 1;
+    }
 
     while (!dl.complete())
     {
@@ -96,6 +106,9 @@ int main()
                 case DataLoader::DataType::gps:
                     // Add gps measurement to filter
                     filter.addGps(ts, i->second.datum);
+                    std::cout << "Added gps measurement at time: "
+                              << ts.time_since_epoch().count() << "\n";
+                    std::cout << "gps: " << i->second.datum.transpose() << "\n";
                     break;
                 case DataLoader::DataType::accel_bias:
                     // do nothing
@@ -117,30 +130,20 @@ int main()
         }
 
         // get state here if you want it
-        auto [X_mu, Sigma, time] = filter.getState();
         auto p = filter.p();
         auto v = filter.v();
-        auto R = filter.R();
-        Eigen::Quaterniond q(R);
-        q = q.normalized();
-
-        double first = p[0];   // First element
-        double second = p[1];  // Second element
-        double third = p[2];   // Third element
-
-        fused_file << std::fixed << std::setprecision(10)
-                   << time.time_since_epoch().count() << " " << first << " "
-                   << second << " " << third << " " << q.x() << " " << q.y()
-                   << " " << q.z() << " " << q.w() << std::endl;
-
+        auto q = filter.q();
+        // auto R = q.toRotationMatrix();
         // Print out the state
-        // std::cout << "State at time " << time.time_since_epoch().count()
-        //           << ":\n";
-        // std::cout << "cnt " << cnt << "\n";
-        std::cout << "p " << p << "\n";
-
-        std::cout << "first " << first << "\n";
+        std::cout << "cnt " << cnt << "\n";
+        // std::cout << "p:\n" << p << "\n";
+        // std::cout << "v:\n" << v << "\n";
+        // std::cout << "q:\n" << q.coeffs() << "\n";
         // if (cnt > 100) break;
-        // cnt++;
+        cnt++;
+        // Save the position and attitude to file
+        savePositionAndAttitude(fused_file, p, q);
     }
+    fused_file.close();
+    std::cout << "Finished processing all data.\n";
 }

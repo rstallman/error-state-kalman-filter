@@ -4,7 +4,7 @@ addpath('filters');
 addpath('helper');
 addpath('thirdparty/shadedErrorBar');
 set(0, 'DefaultTextInterpreter', 'latex');
-set(0, 'DefaultLegendInterpreter', 'latex');
+% set(0, 'DefaultLegendInterpreter', 'latex');
 [T_X, omega, accel, accel_b, T_GPS, XYZ_GPS] = loadPoseGPS();
 
 % rx = rotx(95.538828);
@@ -18,8 +18,8 @@ set(0, 'DefaultLegendInterpreter', 'latex');
 % Initialize filter
 % filter = LIEKF(R0,v0,p0);
 filter = LIEKF;
-test_N = length(omega); %Sets the number of IMU readings
-% test_N = 30000;
+% test_N = length(omega); %Sets the number of IMU readings
+test_N = 60000;
 
 w = omega(1:test_N,:);
 a = accel(1:test_N,:);
@@ -28,7 +28,8 @@ b_a = accel_b(1:test_N,:);
 t_x = T_X(1:test_N,:);
 % dt = [0.02; t_x(2:test_N)-t_x(1:test_N-1)];
 
-meas_used = T_GPS <= t_x(end);
+meas_used = T_GPS <= t_x(end-1);
+
 t_gps = T_GPS(meas_used,:);
 xyz_gps = XYZ_GPS(meas_used,:); 
 
@@ -68,7 +69,7 @@ for i = 2:test_N
     end
 end
 
-meas_used = T_GPS <= t_x(end);
+meas_used = T_GPS <= t_x(end-1);
 
 figure;
 plot3(XYZ_GPS(meas_used,1), XYZ_GPS(meas_used,2), XYZ_GPS(meas_used,3), 'DisplayName','GPS'); hold on;
@@ -78,7 +79,7 @@ view(3);
 
 [~, ~, ~, ~, ~, x_gt, ~, y_gt, ~, z_gt] = loadGroundTruthAGL();
 x_gt = x_gt - x_gt(1); y_gt = y_gt - y_gt(1); z_gt = z_gt - z_gt(1);
-t_gt = linspace(0,T_X(end),length(x_gt));
+t_gt = linspace(0,T_X(end-1),length(x_gt));
 
 figure;
 subplot(3,1,1);

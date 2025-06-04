@@ -92,6 +92,11 @@ function [TR, TT, ER, t] = icp(q,p,varargin)
 % Martin Kjer and Jakob Wilm, Technical University of Denmark, 2012
 
 % Use the inputParser class to validate input arguments.
+
+% remove nan and inf from q, p
+% q = q(~any(isnan(q) | isinf(q),2),:);
+% p = p(~any(isnan(p) | isinf(p),2),:);
+
 inp = inputParser;
 
 inp.addRequired('q', @(x)isreal(x) && size(x,1) == 3);
@@ -342,6 +347,10 @@ p_mark = p - repmat(p_bar, 1, m);
 %p_mark = p_mark .* repmat(weights, 3, 1);
 
 N = p_mark*transpose(q_mark); % taking points of q in matched order
+
+%remove inf and NaN values in N
+% N = N(~any(isinf(N)));
+% N = N(~any(isnan(N)));
 
 [U,~,V] = svd(N); % singular value decomposition
 

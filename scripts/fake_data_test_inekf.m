@@ -1,6 +1,6 @@
 clear; close all; format compact;
 set(0, 'DefaultTextInterpreter', 'latex');
-set(0, 'DefaultLegendInterpreter', 'latex');
+% set(0, 'DefaultLegendInterpreter', 'latex');
 set(0, 'DefaultAxesFontSize', 12)
 
 % Changing the number of random samples will break this seed
@@ -19,6 +19,36 @@ time.tmin = 0;
 time.tmax = 2;
 time.dt = 1e-3;
 %--------------------------------------------------------------
+
+
+
+%-------------------------------------------------------------
+% Helper functions, mostly for SO3 stuff
+function ux  = skew(u)
+    ux = [
+        0 -u(3) u(2)
+        u(3) 0 -u(1)
+        -u(2) u(1) 0
+    ];
+end
+
+function u = unskew(ux)
+    u(1,1) = -ux(2,3);
+    u(2,1) = ux(1,3);
+    u(3,1) = -ux(1,2);
+end
+
+function w = Log(R)
+    w = unskew(logm(R));
+end
+
+function J = J_l(theta)
+    t_x = skew(theta);
+    t = norm(theta);
+
+    J = eye(3) + (1 - cos(t))/t^2 * t_x + (t - sin(t))/t^3*(t_x)^2;
+end
+%-------------------------------------------------------------
 
 %--------------------------------------------------------------
 % Covariance for sensor noise
@@ -187,30 +217,3 @@ saveas(gcf, 'fake_data_ang.png', 'png')
 %--------------------------------------------------------------
 
 
-%-------------------------------------------------------------
-% Helper functions, mostly for SO3 stuff
-function ux  = skew(u)
-    ux = [
-        0 -u(3) u(2)
-        u(3) 0 -u(1)
-        -u(2) u(1) 0
-    ];
-end
-
-function u = unskew(ux)
-    u(1,1) = -ux(2,3);
-    u(2,1) = ux(1,3);
-    u(3,1) = -ux(1,2);
-end
-
-function w = Log(R)
-    w = unskew(logm(R));
-end
-
-function J = J_l(theta)
-    t_x = skew(theta);
-    t = norm(theta);
-
-    J = eye(3) + (1 - cos(t))/t^2 * t_x + (t - sin(t))/t^3*(t_x)^2;
-end
-%-------------------------------------------------------------

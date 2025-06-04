@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Eigen/Dense>
 #include <chrono>
-#include <eigen3/Eigen/Dense>
 #include <tuple>
 
 namespace iekf
