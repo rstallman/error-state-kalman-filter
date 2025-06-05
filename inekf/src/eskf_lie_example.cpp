@@ -1,11 +1,15 @@
 #include <DataLoader.hpp>
-#include <ESKF.hpp>
 #include <Eigen/Dense>
+#include <eskf_lie.hpp>
 #include <fstream>
 #include <iostream>
-#include <map>
+#include <utils.hpp>
 
 using namespace Eigen;
+// Shorthand chrono types
+using Timestamp = std::chrono::time_point<std::chrono::system_clock,
+    std::chrono::duration<double>>;
+using Seconds = std::chrono::duration<double, std::ratio<1, 1>>;
 
 size_t count(DataLoader::OutDataType in)
 {
@@ -22,12 +26,6 @@ struct ImuMeas
     bool accel_set = false;
     bool gyro_set = false;
 };
-
-void savePositionAndAttitude(
-    std::ofstream& file, const Vector3d& pos, const Quaterniond& att)
-{
-    file << pos.transpose() << " " << att.coeffs().transpose() << "\n";
-}
 
 int main()
 {
@@ -47,16 +45,10 @@ int main()
     DataLoader dl(filepath, false);  // false to not use ground truth gps
     ImuMeas imu;
 
-    // Create iekf
-    iekf::ESKF filter;
+    // Create eskf_lie (filter by matrix lie)
+    iekf::ESKF_LIE filter;
 
-    int cnt = 0;
-    std::ofstream fused_file("fused_eskf_me.txt", std::ios::trunc);
-    if (!fused_file.is_open())
-    {
-        std::cerr << "Error opening output file: fused_eskf_me.txt\n";
-        return 1;
-    }
+    std::ofstream fused_file("fused_eskf_lie.txt", std::ios::trunc);
 
     while (!dl.complete())
     {
@@ -71,8 +63,6 @@ int main()
             // Save the timestamp to put in the imu measurement at the bottom
             // of the loop.
             ts = i->first;
-            // auto time = ts.time_since_epoch().count();
-            // if (time < 10) continue;  // skip first few measurements
 
             // Test based on data type
             switch (i->second.dt)
@@ -129,21 +119,10 @@ int main()
             imu.gyro_set = false;
         }
 
-        // get state here if you want it
-        auto p = filter.p();
-        auto v = filter.v();
-        auto q = filter.q();
-        // auto R = q.toRotationMatrix();
-        // Print out the state
-        std::cout << "cnt " << cnt << "\n";
-        // std::cout << "p:\n" << p << "\n";
-        // std::cout << "v:\n" << v << "\n";
-        // std::cout << "q:\n" << q.coeffs() << "\n";
-        // if (cnt > 100) break;
-        cnt++;
-        // Save the position and attitude to file
-        savePositionAndAttitude(fused_file, p, q);
+        auto [pos, vel, att] = filter.getState();
+        Quaterniond att_q(att);
+        fused_file << std::fixed << std::setprecision(10)
+                   << ts.time_since_epoch().count() << " " << pos.transpose()
+                   << " " << att_q.coeffs().transpose() << "\n";
     }
-    fused_file.close();
-    std::cout << "Finished processing all data.\n";
 }

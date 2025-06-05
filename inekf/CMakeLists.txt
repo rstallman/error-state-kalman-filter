@@ -20,10 +20,16 @@ target_link_libraries(test_iekf iekf Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_L
 
 # ################################################################################
 # ESKF
-# add_library(eskf SHARED src/ESKF.cpp)
-# target_link_libraries(eskf utils Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_library(eskf SHARED src/eskf.cpp)
+target_link_libraries(eskf utils Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 # ##############################################################################
+# ESKF with matrix lie algebra
+add_library(eskf_lie SHARED src/eskf_lie.cpp)
+target_link_libraries(eskf_lie utils Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
+add_executable(eskf_lie_example src/eskf_lie_example.cpp)
+target_link_libraries(eskf_lie_example DataLoader eskf_lie utils Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 # ##############################################################################
 # DataLoader
@@ -31,10 +37,8 @@ add_library(DataLoader SHARED src/DataLoader.cpp)
 add_executable(iekf_example src/iekf_example.cpp)
 target_link_libraries(iekf_example DataLoader iekf Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-# add_executable(eskf_example src/eskf_example.cpp)
-# target_link_libraries(eskf_example DataLoader eskf Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_executable(eskf_deepseek src/eskf_deepseek.cpp)
-target_link_libraries(eskf_deepseek DataLoader utils Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(eskf_deepseek DataLoader eskf Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 # ##############################################################################
 
@@ -45,3 +49,4 @@ target_add_test_case(test_utils test_utils.cpp)
 target_link_libraries(test_utils utils Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 # ##############################################################################
+add_subdirectory(tmp_code)

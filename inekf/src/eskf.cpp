@@ -3,8 +3,7 @@
 #include "utils.hpp"
 namespace iekf
 {
-ESKF::ESKF()
-    : error_state(15), P(15, 15), Q(15, 15), R_gps(6, 6), initialized(false)
+ESKF::ESKF() : error_state(15), P(15, 15), Q(15, 15), R_gps(6, 6)
 {
     // Initialize covariance matrices
     P.setIdentity();
@@ -32,7 +31,6 @@ ESKF::ESKF()
     accel_bias.setZero();
     gyro_bias.setZero();
     error_state.setZero();
-    initialized = true;
 }
 
 // Add an IMU measurement (measurement as motion model) to the filter
@@ -147,6 +145,14 @@ void ESKF::addGps(const Timestamp &timestamp, const Vector3d &gps_lla)
     error_state.setZero();
 
     time_last_gps_ = timestamp;
+}
+
+void ESKF::resetFilter(const Timestamp &time, const Vector3d &origin_lla)
+{
+    origin_ = origin_lla;
+    origin_set_ = true;
+    time_ = time;
+    time_last_predict_ = time;
 }
 
 // Helper functions

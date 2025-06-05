@@ -73,9 +73,6 @@ private:
     MatrixXd Q;      // Process noise covariance
     MatrixXd R_gps;  // GPS measurement noise covariance
 
-    // Time management
-    bool initialized;
-
     // Earth constants
     const double g = 9.81;  // gravity [m/s^2]
     const Matrix3d I3 = Matrix3d::Identity();

@@ -11,7 +11,7 @@ def load_txt_data(data_path):
 
 
 if __name__ == "__main__":
-    fuse_data_path = '/Users/lijinliang/UMICH_Rob530/invariant-ekf/inekf/build/fused.txt'
+    fuse_data_path = '/Users/lijinliang/UMICH_Rob530/invariant-ekf/inekf/build/fused_eskf_lie.txt'
     # gps_data_path = './gps_measurement.txt'
     # gt_data_path = './gt.txt'
 

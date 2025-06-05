@@ -1,8 +1,11 @@
-#include <ESKF_Practice.hpp>
+#include "ESKF.hpp"
+
 #include <cmath>
 #include <iostream>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utils.hpp>
+
+#include "math_utils.hpp"
 
 using namespace std::chrono;
 using namespace Eigen;
@@ -10,7 +13,7 @@ using std::cos;
 using std::pow;
 using std::sin;
 
-namespace iekf
+namespace practice
 {
 // Define a bunch of commonly used types to save typing
 // and make the files more clear. These are consistent
@@ -185,4 +188,4 @@ void ESKF::resetErrorState()
     error_x_.setZero();
 }
 
-}  // namespace iekf
+}  // namespace practice

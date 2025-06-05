@@ -4,7 +4,7 @@
 #include <eigen3/Eigen/Dense>
 #include <tuple>
 
-namespace iekf
+namespace practice
 {
 class ESKF
 {
@@ -105,4 +105,4 @@ private:
     bool origin_set_ = false;  ///< indicates if gps origin set
 };
 
-}  // namespace iekf
+}  // namespace practice
